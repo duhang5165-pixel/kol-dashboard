@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOL 内容管理 - 数据看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 32px; }
+.header h1 { font-size: 24px; font-weight: 700; }
+.header p { opacity: 0.85; margin-top: 4px; font-size: 14px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+.section-title { font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+.section-title::before { content: ''; width: 4px; height: 24px; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 2px; }
+.highlight-box { background: linear-gradient(135deg, #f8f9ff 0%, #eef0ff 100%); border: 1px solid #e0e4ff; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.highlight-box h4 { font-size: 15px; color: #667eea; margin-bottom: 12px; font-weight: 600; }
+.highlight-box ul { list-style: none; }
+.highlight-box li { padding: 6px 0; font-size: 13px; color: #444; display: flex; align-items: flex-start; gap: 8px; line-height: 1.6; }
+.highlight-box li::before { content: '✓'; color: #43e97b; font-weight: bold; flex-shrink: 0; }
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+@media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: white; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.stat-card .num { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-card .label { font-size: 13px; color: #666; margin-top: 6px; }
+.stat-card.highlight { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-card.highlight .num { background: none; -webkit-text-fill-color: white; }
+.stat-card.highlight .label { color: rgba(255,255,255,0.85); }
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+@media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+.card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.card h2 { font-size: 16px; margin-bottom: 16px; color: #1a1a2e; }
+.chart-container { position: relative; height: 300px; }
+.workflow-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 32px; }
+.workflow-box h3 { font-size: 16px; margin-bottom: 16px; }
+.workflow-input { display: flex; gap: 12px; align-items: center; }
+.workflow-input input { flex: 1; max-width: 200px; padding: 12px 16px; border: 2px solid #e0e4ff; border-radius: 8px; font-size: 15px; }
+.workflow-input input:focus { outline: none; border-color: #667eea; }
+.workflow-input button { padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.workflow-hint { margin-top: 12px; font-size: 13px; color: #666; }
+</style>
+</head>
+<body>
+<div class="header">
+<h1>🎯 KOL 内容管理 - 数据看板</h1>
+<p>多市场 KOL 内容追踪 | 更新: 2026-09-09</p>
+</div>
+<div class="container">
+
+<!-- 亮点汇总 -->
+<div class="section-title">✨ 亮点汇总</div>
+<div class="highlight-box">
+<h4>📊 全量数据亮点</h4>
+<ul>
+<li>总记录 1,281 条，跨 4 个市场 5 个期数</li>
+<li>总曝光 3.8 亿次 (380,454,756)</li>
+<li>总互动 420.5 万次 (4,205,113)</li>
+<li>整体互动率 1.11%</li>
+<li>第 1 期互动率最高 (1.35%)</li>
+</ul>
+</div>
+<div class="highlight-box">
+<h4>🌏 分市场亮点</h4>
+<ul>
+<li>TH 泰国：538 条记录，曝光 3.1 亿，互动率 1.18%，表现最佳</li>
+<li>KR 韩国：343 条记录，曝光 2,617 万，互动率 0.50%</li>
+<li>MY 马来西亚：251 条记录，曝光 3,082 万，互动率 1.02%</li>
+<li>SG 新加坡：149 条记录，曝光 1,079 万，互动率 0.63%</li>
+</ul>
+</div>
+
+
+<!-- 数据总览 -->
+<div class="section-title">📊 数据总览</div>
+<div class="stats-row">
+<div class="stat-card"><div class="num">1,281</div><div class="label">总记录数</div></div>
+<div class="stat-card"><div class="num">3.8亿</div><div class="label">总曝光</div></div>
+<div class="stat-card"><div class="num">420.5万</div><div class="label">总互动</div></div>
+<div class="stat-card highlight"><div class="num">1.11%</div><div class="label">整体互动率</div></div>
+</div>
+
+<!-- 趋势分析 -->
+<div class="section-title">📈 趋势分析</div>
+<div class="dashboard-grid">
+<div class="card">
+<h2>📅 各期数记录数趋势</h2>
+<div class="chart-container"><canvas id="periodCountChart"></canvas></div>
+</div>
+<div class="card">
+<h2>👁️ 各期数曝光量趋势</h2>
+<div class="chart-container"><canvas id="periodViewsChart"></canvas></div>
+</div>
+</div>
+<div class="dashboard-grid">
+<div class="card">
+<h2>💬 各期数互动量趋势</h2>
+<div class="chart-container"><canvas id="periodEngagementChart"></canvas></div>
+</div>
+<div class="card">
+<h2>📊 各期数互动率趋势</h2>
+<div class="chart-container"><canvas id="periodRateChart"></canvas></div>
+</div>
+</div>
+
+<div class="section-title">🌏 分市场趋势</div>
+<div class="dashboard-grid">
+<div class="card">
+<h2>📋 各市场记录数对比</h2>
+<div class="chart-container"><canvas id="regionCountChart"></canvas></div>
+</div>
+<div class="card">
+<h2>👁️ 各市场曝光量对比</h2>
+<div class="chart-container"><canvas id="regionViewsChart"></canvas></div>
+</div>
+</div>
+<div class="dashboard-grid">
+<div class="card">
+<h2>💬 各市场互动量对比</h2>
+<div class="chart-container"><canvas id="regionEngagementChart"></canvas></div>
+</div>
+<div class="card">
+<h2>📊 各市场互动率对比</h2>
+<div class="chart-container"><canvas id="regionRateChart"></canvas></div>
+</div>
+</div>
+
+
+<!-- 工作流指令（放最后） -->
+<div class="section-title">📋 工作流指令</div>
+<div class="workflow-box">
+<h3>输入要同步的期数，自动执行全量排查</h3>
+<div class="workflow-input">
+<input type="number" id="periodInput" placeholder="输入期数，如 5" min="1">
+<button onclick="startSync()">开始同步与排查</button>
+</div>
+<div class="workflow-hint">💡 输入期数后，我会自动：同步多维表格数据 → 检查空行/重复 → 校验标签和目的地 → 生成报告</div>
+<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e8e8e8;">
+<h4 style="font-size: 14px; color: #666; margin-bottom: 12px;">🔧 快捷修复指令（点击复制）</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+<button onclick="copyCmd('请检查并修复第X期目的地标签')" style="padding: 8px 16px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; font-size: 13px; cursor: pointer;">📍 目的地标签不对</button>
+<button onclick="copyCmd('请补全第X期缺失的标签')" style="padding: 8px 16px; background: #d1ecf1; border: 1px solid #17a2b8; border-radius: 6px; font-size: 13px; cursor: pointer;">🏷️ 标签缺失</button>
+<button onclick="copyCmd('请清理第X期的重复数据')" style="padding: 8px 16px; background: #f8d7da; border: 1px solid #dc3545; border-radius: 6px; font-size: 13px; cursor: pointer;">🔄 重复数据</button>
+<button onclick="copyCmd('请修复第X期平台名称规范')" style="padding: 8px 16px; background: #d4edda; border: 1px solid #28a745; border-radius: 6px; font-size: 13px; cursor: pointer;">📱 平台名不规范</button>
+<button onclick="copyCmd('请修复第X期的错误标签')" style="padding: 8px 16px; background: #e2e3e5; border: 1px solid #6c757d; border-radius: 6px; font-size: 13px; cursor: pointer;">⚠️ 错误标签</button>
+<button onclick="copyCmd('请生成第X期的完整数据报告')" style="padding: 8px 16px; background: #e7e9ff; border: 1px solid #667eea; border-radius: 6px; font-size: 13px; cursor: pointer;">📊 生成报告</button>
+</div>
+<p style="margin-top: 10px; font-size: 12px; color: #999;">💡 点击按钮会复制指令，将"X"替换为实际期数后发给我即可执行</p>
+</div>
+</div>
+
+</div>
+
+<script>
+function startSync() {
+  const period = document.getElementById('periodInput').value;
+  if (!period) { alert('请输入期数'); return; }
+  alert('已收到指令：同步第 ' + period + ' 期数据\n\n请将以下内容发送给我：\n"请同步第 ' + period + ' 期增量"\n\n我会自动执行全量排查');
+}
+
+function copyCmd(cmd) {
+  const period = document.getElementById('periodInput').value || 'X';
+  const text = cmd.replace(/X/g, period);
+  navigator.clipboard.writeText(text).then(function() {
+    alert('已复制指令：\n' + text + '\n\n直接粘贴发给我即可执行');
+  }).catch(function() {
+    prompt('复制失败，请手动复制：', text);
+  });
+}
+
+Chart.register(ChartDataLabels);
+
+const periodLabels = ['第1期', '第2期', '第3期', '第4期', '第5期'];
+const periodCounts = [174, 156, 292, 306, 345];
+const periodViews = [193291492, 48676250, 68957360, 69529654, 0];
+const periodEngagement = [2602381, 395008, 318679, 889045, 0];
+const periodRates = [1.35, 0.81, 0.46, 1.28, 0];
+
+const regionLabels = ['TH 泰国', 'KR 韩国', 'MY 马来西亚', 'SG 新加坡'];
+const regionCounts = [538, 343, 251, 149];
+const regionViews = [312680187, 26168391, 30817972, 10788206];
+const regionEngagement = [3689688, 131779, 315393, 68253];
+const regionRates = [1.18, 0.50, 1.02, 0.63];
+
+const colors = { primary: '#667eea', green: '#43e97b', orange: '#fda085', blue: '#339af0' };
+
+new Chart(document.getElementById('periodCountChart'), {
+  type: 'line',
+  data: { labels: periodLabels, datasets: [{ label: '记录数', data: periodCounts, borderColor: colors.primary, backgroundColor: colors.primary + '20', fill: true, tension: 0.4, pointRadius: 6 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 12, weight: 'bold' } } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('periodViewsChart'), {
+  type: 'bar',
+  data: { labels: periodLabels, datasets: [{ label: '曝光量', data: periodViews, backgroundColor: colors.blue + 'CC', borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => v > 0 ? (v / 100000000).toFixed(1) + '亿' : '-' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('periodEngagementChart'), {
+  type: 'bar',
+  data: { labels: periodLabels, datasets: [{ label: '互动量', data: periodEngagement, backgroundColor: colors.green + 'CC', borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => v > 0 ? (v / 10000).toFixed(0) + '万' : '-' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('periodRateChart'), {
+  type: 'line',
+  data: { labels: periodLabels, datasets: [{ label: '互动率', data: periodRates, borderColor: colors.orange, backgroundColor: colors.orange + '20', fill: true, tension: 0.4, pointRadius: 6 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 12, weight: 'bold' }, formatter: (v) => v > 0 ? v.toFixed(2) + '%' : '-' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionCountChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '记录数', data: regionCounts, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 13, weight: 'bold' } } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionViewsChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '曝光量', data: regionViews, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => (v / 100000000).toFixed(1) + '亿' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionEngagementChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '互动量', data: regionEngagement, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => (v / 10000).toFixed(0) + '万' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionRateChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '互动率', data: regionRates, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 13, weight: 'bold' }, formatter: (v) => v.toFixed(2) + '%' } }, scales: { y: { beginAtZero: true } } }
+});
+</script>
+</body>
+</html>
