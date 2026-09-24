@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOL 内容管理 - 数据看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px 32px; }
+.header h1 { font-size: 24px; font-weight: 700; }
+.header p { opacity: 0.85; margin-top: 4px; font-size: 14px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+.section-title { font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+.section-title::before { content: ''; width: 4px; height: 24px; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 2px; }
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+@media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: white; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.stat-card .num { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-card .label { font-size: 13px; color: #666; margin-top: 6px; }
+.stat-card.highlight { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-card.highlight .num { background: none; -webkit-text-fill-color: white; }
+.stat-card.highlight .label { color: rgba(255,255,255,0.85); }
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+@media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+.card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.card h2 { font-size: 16px; margin-bottom: 16px; color: #1a1a2e; }
+.chart-container { position: relative; height: 300px; }
+</style>
+</head>
+<body>
+<div class="header">
+<h1> KOL 内容管理 - 数据看板</h1>
+<p>多市场 KOL 内容追踪 | 更新：2026-09-24</p>
+</div>
+<div class="container">
+
+<div class="stats-row">
+<div class="stat-card highlight"><div class="num">1,563</div><div class="label">总记录数</div></div>
+<div class="stat-card"><div class="num">3.80亿</div><div class="label">总曝光量</div></div>
+<div class="stat-card"><div class="num">421万</div><div class="label">总互动量</div></div>
+<div class="stat-card"><div class="num">1.11%</div><div class="label">总互动率</div></div>
+</div>
+
+<h2 class="section-title">📈 按期数统计</h2>
+<div class="dashboard-grid">
+<div class="card"><h2>记录数</h2><div class="chart-container"><canvas id="periodCountChart"></canvas></div></div>
+<div class="card"><h2>曝光量</h2><div class="chart-container"><canvas id="periodViewsChart"></canvas></div></div>
+<div class="card"><h2>互动量</h2><div class="chart-container"><canvas id="periodEngagementChart"></canvas></div></div>
+<div class="card"><h2>互动率</h2><div class="chart-container"><canvas id="periodRateChart"></canvas></div></div>
+</div>
+
+<h2 class="section-title">🌏 按市场统计</h2>
+<div class="dashboard-grid">
+<div class="card"><h2>记录数</h2><div class="chart-container"><canvas id="regionCountChart"></canvas></div></div>
+<div class="card"><h2>曝光量</h2><div class="chart-container"><canvas id="regionViewsChart"></canvas></div></div>
+<div class="card"><h2>互动量</h2><div class="chart-container"><canvas id="regionEngagementChart"></canvas></div></div>
+<div class="card"><h2>互动率</h2><div class="chart-container"><canvas id="regionRateChart"></canvas></div></div>
+</div>
+
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const periodLabels = ["第1期","第2期","第3期","第4期","第5期"];
+const periodCounts = [174,156,292,306,349];
+const periodViews = [193291492,48676250,68957360,69529654,0];
+const periodEngagement = [2602381,395008,318679,889045,0];
+const periodRates = [1.35,0.81,0.46,1.28,0];
+
+const regionLabels = ["TH","KR","MY","SG"];
+const regionCounts = [538,343,253,151];
+const regionViews = [312680187,26168391,30817972,10788206];
+const regionEngagement = [3689688,131779,315393,68253];
+const regionRates = [1.18,0.5,1.02,0.63];
+
+new Chart(document.getElementById('periodCountChart'), {
+  type: 'bar',
+  data: { labels: periodLabels, datasets: [{ label: '记录数', data: periodCounts, backgroundColor: '#667eeaCC', borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 12, weight: 'bold' } } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('periodViewsChart'), {
+  type: 'bar',
+  data: { labels: periodLabels, datasets: [{ label: '曝光量', data: periodViews, backgroundColor: '#667eeaCC', borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => (v / 100000000).toFixed(1) + '亿' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('periodEngagementChart'), {
+  type: 'bar',
+  data: { labels: periodLabels, datasets: [{ label: '互动量', data: periodEngagement, backgroundColor: '#667eeaCC', borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => (v / 10000).toFixed(0) + '万' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('periodRateChart'), {
+  type: 'bar',
+  data: { labels: periodLabels, datasets: [{ label: '互动率', data: periodRates, backgroundColor: '#667eeaCC', borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 13, weight: 'bold' }, formatter: (v) => v.toFixed(2) + '%' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionCountChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '记录数', data: regionCounts, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 13, weight: 'bold' } } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionViewsChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '曝光量', data: regionViews, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => (v / 100000000).toFixed(1) + '亿' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionEngagementChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '互动量', data: regionEngagement, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 11 }, formatter: (v) => (v / 10000).toFixed(0) + '万' } }, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('regionRateChart'), {
+  type: 'bar',
+  data: { labels: regionLabels, datasets: [{ label: '互动率', data: regionRates, backgroundColor: ['#ff6b6bCC', '#51cf66CC', '#339af0CC', '#fcc419CC'], borderRadius: 8 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'top', align: 'top', font: { size: 13, weight: 'bold' }, formatter: (v) => v.toFixed(2) + '%' } }, scales: { y: { beginAtZero: true } } }
+});
+</script>
+</body>
+</html>
