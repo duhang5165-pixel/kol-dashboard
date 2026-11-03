@@ -33,15 +33,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <body>
 <div class="header">
 <h1> KOL 内容管理 - 数据看板</h1>
-<p>多市场 KOL 内容追踪 | 更新：2026-09-24</p>
+<p>多市场 KOL 内容追踪 | 更新：2026-11-03</p>
 </div>
 <div class="container">
 
 <div class="stats-row">
-<div class="stat-card highlight"><div class="num">1,285</div><div class="label">总记录数</div></div>
-<div class="stat-card"><div class="num">3.80亿</div><div class="label">总曝光量</div></div>
-<div class="stat-card"><div class="num">421万</div><div class="label">总互动量</div></div>
-<div class="stat-card"><div class="num">1.11%</div><div class="label">总互动率</div></div>
+<div class="stat-card highlight"><div class="num">1,371</div><div class="label">总记录数</div></div>
+<div class="stat-card"><div class="num">5.99亿</div><div class="label">总曝光量</div></div>
+<div class="stat-card"><div class="num">658万</div><div class="label">总互动量</div></div>
+<div class="stat-card"><div class="num">1.10%</div><div class="label">总互动率</div></div>
 </div>
 
 <h2 class="section-title"> 按期数统计</h2>
@@ -66,16 +66,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 Chart.register(ChartDataLabels);
 
 const periodLabels = ["第1期","第2期","第3期","第4期","第5期"];
-const periodCounts = [174,156,292,306,349];
-const periodViews = [193291492,48676250,68957360,69529654,0];
-const periodEngagement = [2602381,395008,318679,889045,0];
-const periodRates = [1.35,0.81,0.46,1.28,0];
+const periodCounts = [125,131,262,324,351];
+const periodViews = [333345078,60307511,91214094,63788880,41618731];
+const periodEngagement = [4148511,525503,568717,665191,582912];
+const periodRates = [1.24,0.87,0.62,1.04,1.4];
 
 const regionLabels = ["TH","KR","MY","SG"];
-const regionCounts = [538,343,253,151];
-const regionViews = [312680187,26168391,30817972,10788206];
-const regionEngagement = [3689688,131779,315393,68253];
-const regionRates = [1.18,0.5,1.02,0.63];
+const regionCounts = [578,295,277,182];
+const regionViews = [472301653,45834752,59378756,18036309];
+const regionEngagement = [5168558,385415,824053,160803];
+const regionRates = [1.09,0.84,1.39,0.89];
 
 new Chart(document.getElementById('periodCountChart'), {
   type: 'bar',
